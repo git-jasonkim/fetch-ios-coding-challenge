@@ -90,6 +90,7 @@
 		E054A32E29E70878006D65C3 /* MealsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealsViewModel.swift; sourceTree = "<group>"; };
 		E05EDBE829ED4DBC00D9BF85 /* MealDetailsControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealDetailsControllerTests.swift; sourceTree = "<group>"; };
 		E06C50B329ED5314008BC3AE /* test_img.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = test_img.png; path = ../../../../../Downloads/test_img.png; sourceTree = "<group>"; };
+		E06C50BA29ED9E3A008BC3AE /* kill_sim_clones.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = kill_sim_clones.sh; sourceTree = "<group>"; };
 		E0A82AB829E7670F00C986E6 /* MealDetailsController+CV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MealDetailsController+CV.swift"; sourceTree = "<group>"; };
 		E0A82ABA29E767D300C986E6 /* MealDetailsOverviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealDetailsOverviewCell.swift; sourceTree = "<group>"; };
 		E0A82ABC29E767E100C986E6 /* MealDetailsInstructionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealDetailsInstructionCell.swift; sourceTree = "<group>"; };
@@ -172,6 +173,7 @@
 		E054A2E529E67DBB006D65C3 /* fetchTests */ = {
 			isa = PBXGroup;
 			children = (
+				E06C50B929ED9E24008BC3AE /* scripts */,
 				E0A82AF929ED353B00C986E6 /* EnumTests.swift */,
 				E0A82AEF29ED306B00C986E6 /* network */,
 				E0A82AE829EBD61700C986E6 /* controllers */,
@@ -269,6 +271,14 @@
 				E0A82ABE29E767F900C986E6 /* MealDetailsIngredientMeasurementCell.swift */,
 			);
 			path = views;
+			sourceTree = "<group>";
+		};
+		E06C50B929ED9E24008BC3AE /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				E06C50BA29ED9E3A008BC3AE /* kill_sim_clones.sh */,
+			);
+			path = scripts;
 			sourceTree = "<group>";
 		};
 		E0A82AC429E77C4600C986E6 /* custom */ = {
