@@ -2,6 +2,8 @@
 
 Swift application built programmatically using MVVM and Auto Layout.
 
+![](app_preview.gif)
+
 MainController
 >-Root viewcontroller
 
