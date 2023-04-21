@@ -94,7 +94,7 @@ class MealDetailsViewModel {
         paragraphStyle.lineSpacing = 4
         paragraphStyle.alignment = .left
 
-        attributedText = NSMutableAttributedString(string: "\(key). \(ingredient)", attributes: Attributes.mealDetailsIngredientMeasurement)
+        attributedText = NSMutableAttributedString(string: "\(key + 1). \(ingredient)", attributes: Attributes.mealDetailsIngredientMeasurement)
         if (!measurement.isEmpty) {
             attributedText.append(NSAttributedString(string: ", \(measurement)", attributes: Attributes.mealDetailsIngredientMeasurement))
         }

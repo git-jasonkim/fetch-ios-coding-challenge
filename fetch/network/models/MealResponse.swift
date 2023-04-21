@@ -25,50 +25,20 @@ struct MealResponse: Codable {
         let instructions: String?
         let tags: String?
         let youtube: String?
-        let ingredient1: String?
-        let ingredient2: String?
-        let ingredient3: String?
-        let ingredient4: String?
-        let ingredient5: String?
-        let ingredient6: String?
-        let ingredient7: String?
-        let ingredient8: String?
-        let ingredient9: String?
-        let ingredient10: String?
-        let ingredient11: String?
-        let ingredient12: String?
-        let ingredient13: String?
-        let ingredient14: String?
-        let ingredient15: String?
-        let ingredient16: String?
-        let ingredient17: String?
-        let ingredient18: String?
-        let ingredient19: String?
-        let ingredient20: String?
-        let measurement1: String?
-        let measurement2: String?
-        let measurement3: String?
-        let measurement4: String?
-        let measurement5: String?
-        let measurement6: String?
-        let measurement7: String?
-        let measurement8: String?
-        let measurement9: String?
-        let measurement10: String?
-        let measurement11: String?
-        let measurement12: String?
-        let measurement13: String?
-        let measurement14: String?
-        let measurement15: String?
-        let measurement16: String?
-        let measurement17: String?
-        let measurement18: String?
-        let measurement19: String?
-        let measurement20: String?
         let source: String?
         let imageSource: String?
         let creativeCommonsConfirmed: String?
         let dateModified: Double?
+        var ingredients: [String]
+        var measurements: [String]
+
+        struct GenericCodingKeys: CodingKey {
+            var stringValue: String
+            var intValue: Int?
+
+            init?(stringValue: String) { self.stringValue = stringValue }
+            init?(intValue: Int) { self.intValue = intValue; self.stringValue = "\(intValue)" }
+        }
         
         enum CodingKeys: String, CodingKey {
             case id = "idMeal"
@@ -80,52 +50,49 @@ struct MealResponse: Codable {
             case thumbnail = "strMealThumb"
             case tags = "strTags"
             case youtube = "strYoutube"
-            case ingredient1 = "strIngredient1"
-            case ingredient2 = "strIngredient2"
-            case ingredient3 = "strIngredient3"
-            case ingredient4 = "strIngredient4"
-            case ingredient5 = "strIngredient5"
-            case ingredient6 = "strIngredient6"
-            case ingredient7 = "strIngredient7"
-            case ingredient8 = "strIngredient8"
-            case ingredient9 = "strIngredient9"
-            case ingredient10 = "strIngredient10"
-            case ingredient11 = "strIngredient11"
-            case ingredient12 = "strIngredient12"
-            case ingredient13 = "strIngredient13"
-            case ingredient14 = "strIngredient14"
-            case ingredient15 = "strIngredient15"
-            case ingredient16 = "strIngredient16"
-            case ingredient17 = "strIngredient17"
-            case ingredient18 = "strIngredient18"
-            case ingredient19 = "strIngredient19"
-            case ingredient20 = "strIngredient20"
-            case measurement1 = "strMeasure1"
-            case measurement2 = "strMeasure2"
-            case measurement3 = "strMeasure3"
-            case measurement4 = "strMeasure4"
-            case measurement5 = "strMeasure5"
-            case measurement6 = "strMeasure6"
-            case measurement7 = "strMeasure7"
-            case measurement8 = "strMeasure8"
-            case measurement9 = "strMeasure9"
-            case measurement10 = "strMeasure10"
-            case measurement11 = "strMeasure11"
-            case measurement12 = "strMeasure12"
-            case measurement13 = "strMeasure13"
-            case measurement14 = "strMeasure14"
-            case measurement15 = "strMeasure15"
-            case measurement16 = "strMeasure16"
-            case measurement17 = "strMeasure17"
-            case measurement18 = "strMeasure18"
-            case measurement19 = "strMeasure19"
-            case measurement20 = "strMeasure20"
             case source = "strSource"
             case imageSource = "strImageSource"
             case creativeCommonsConfirmed = "strCreativeCommonsConfirmed"
             case dateModified
         }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(String.self, forKey: .id)
+            name = try container.decode(String.self, forKey: .name)
+            drinkAlternate = try container.decodeIfPresent(String.self, forKey: .drinkAlternate)
+            category = try container.decodeIfPresent(String.self, forKey: .category)
+            area = try container.decodeIfPresent(String.self, forKey: .area)
+            instructions = try container.decodeIfPresent(String.self, forKey: .instructions)
+            thumbnail = try container.decode(String.self, forKey: .thumbnail)
+            tags = try container.decodeIfPresent(String.self, forKey: .tags)
+            youtube = try container.decodeIfPresent(String.self, forKey: .youtube)
+            source = try container.decodeIfPresent(String.self, forKey: .source)
+            imageSource = try container.decodeIfPresent(String.self, forKey: .imageSource)
+            creativeCommonsConfirmed = try container.decodeIfPresent(String.self, forKey: .creativeCommonsConfirmed)
+            dateModified = try container.decodeIfPresent(Double.self, forKey: .dateModified)
+
+            // Use dynamic GenericCodingKeys to extract each ingredient and measurement
+            let genericContainer = try decoder.container(keyedBy: GenericCodingKeys.self)
+            let ingredientsContainer = genericContainer.allKeys.filter { $0.stringValue.starts(with: "strIngredient") }.sorted { $0.stringValue.localizedStandardCompare($1.stringValue) == .orderedAscending }
+            let measurementsContainer = genericContainer.allKeys.filter { $0.stringValue.starts(with: "strMeasure") }.sorted { $0.stringValue.localizedStandardCompare($1.stringValue) == .orderedAscending }
+            
+            self.ingredients = [String]()
+            for key in ingredientsContainer {
+                if let ingredient = try genericContainer.decodeIfPresent(String.self, forKey: key), !ingredient.isEmpty {
+                    ingredients.append(ingredient)
+                }
+            }
+            
+            self.measurements = [String]()
+            for key in measurementsContainer {
+                if let measurement = try genericContainer.decodeIfPresent(String.self, forKey: key) {
+                    measurements.append(measurement)
+                }
+            }
+        }
     }
+    
     
     public func toMeals() -> [Meal] {
         guard let meals = meals else { return [] }
@@ -140,23 +107,16 @@ struct MealResponse: Codable {
             
             let ingredients: [Int: String] = { meal in
                 var dict = [Int: String]()
-                let regex = try! NSRegularExpression(pattern: #"^ingredient\d+$"#)
-                for (key, value) in Mirror(reflecting: meal).children {
-                    if let key = key, let value = value as? String, !value.isEmpty && regex.firstMatch(in: key, range: NSRange(location: 0, length: key.utf16.count)) != nil {
-                        dict[dict.count] = value
-                    }
+                for (index, key) in meal.ingredients.enumerated() {
+                    dict[index] = key
                 }
                 return dict
             }($0)
             
             let measurements: [Int: String] = { meal in
                 var dict = [Int: String]()
-                let regex = try! NSRegularExpression(pattern: #"^measurement\d+$"#)
-                for (key, value) in Mirror(reflecting: meal).children {
-                    if let key = key, let value = value as? String, !value.isEmpty && regex.firstMatch(in: key, range: NSRange(location: 0, length: key.utf16.count)) != nil {
-                        dict[dict.count] = value
-                    }
-
+                for (index, key) in meal.measurements.enumerated() {
+                    dict[index] = key
                 }
                 return dict
             }($0)
