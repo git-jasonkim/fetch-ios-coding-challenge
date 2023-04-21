@@ -8,7 +8,6 @@
 import Foundation
 
 class APIService {
-    static let shared = APIService()
     private let session = URLSession.shared
     
     enum HttpMethod {

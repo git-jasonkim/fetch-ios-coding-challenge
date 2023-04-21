@@ -7,11 +7,18 @@
 
 import UIKit
 
-class MealsAPIService: APIService, MealsAPIProtocol {
+class MealsAPIService: MealsAPIProtocol {
+    
+    private let api: APIService
+    
+    init(api: APIService = APIService()) {
+        self.api = api
+    }
+    
     public func getMeals(category: MealCategory) async -> [Meal]? {
         guard let url = URL(string: API.Path.getMealsByCategory(category.rawValue)) else { return nil}
         
-        let result: Result<MealResponse, Error> = await get(url: url)
+        let result: Result<MealResponse, Error> = await api.get(url: url)
         switch result {
         case .failure(_):
             return nil
@@ -23,7 +30,7 @@ class MealsAPIService: APIService, MealsAPIProtocol {
     public func getMealDetail(id: String) async -> Meal? {
         guard let url = URL(string: API.Path.getMealDetailsById(id)) else { return nil }
         
-        let result: Result<MealResponse, Error> = await get(url: url)
+        let result: Result<MealResponse, Error> = await api.get(url: url)
         switch result {
         case .failure(_):
             return nil
@@ -34,7 +41,7 @@ class MealsAPIService: APIService, MealsAPIProtocol {
     
     public func fetchImage(url: String) async -> UIImage? {
         guard let url = URL(string: url) else { return nil }
-        let result = await download(url: url)
+        let result = await api.download(url: url)
         switch result {
         case .failure(_):
             return nil
