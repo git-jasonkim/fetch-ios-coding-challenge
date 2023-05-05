@@ -22,5 +22,5 @@ API
 -https://themealdb.com/api/json/v1/1/lookup.php?i=\(id)
 
 UIImageView Extension
->-fetch image
+>-fetch image\
 -cache
