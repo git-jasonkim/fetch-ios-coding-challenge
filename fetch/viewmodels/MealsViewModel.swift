@@ -10,26 +10,25 @@ import UIKit
 class MealsViewModel {
     
     deinit {
-        print("deinit MealsViewModel")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
+
     
-    internal let api: MealsAPIProtocol
-    internal let thumbnailCache: CacheManager
+    private(set) var meals = [Meal]()
+    internal let api: MealAPI
     
-    init(api: MealsAPIProtocol, thumbnailCache: CacheManager) {
+    init(api: MealAPI = MealAPIService()) {
         self.api = api
-        self.thumbnailCache = thumbnailCache
     }
     
-    private var _meals = [Meal]()
-
-    
-    public func setMeals(_ meals: [Meal]) {
-        _meals = meals
-    }
-
     public func getMeal(of index: Int) -> Meal {
-        return _meals[index]
+        return meals[index]
+    }
+    
+    public func getThumbnailUrl(of index: Int) -> String {
+        return meals[index].thumbnail
     }
     
     public func getMealName(of index: Int) -> NSAttributedString {
@@ -49,37 +48,18 @@ class MealsViewModel {
     public var reloadData: (() -> ())?
     
     public var count: Int {
-        return _meals.count
+        return meals.count
     }
     
-    public func loadData() {
-        Task {
-            let meals = await api.getMeals(category: MealCategory.dessert)
-            guard let meals = meals else { return }
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.setMeals(meals)
-                self?.reloadData?()
-            }
-        }
-    }
-    
-    public func getThumbnail(of index: Int, completion: @escaping ((UIImage?) -> ())) {
-        let thumbnailUrl = getMeal(of: index).thumbnail
-        
-        if let image = thumbnailCache.retrieve(id: thumbnailUrl) {
-            completion(image)
-            return
-        }
-        
-        Task {
-            let image = await api.fetchImage(url: thumbnailUrl)
-            DispatchQueue.main.async { [weak self] in
-                if let image = image {
-                    self?.thumbnailCache.set(id: thumbnailUrl, image: image)
-                }
-                completion(image)
-            }
+    @MainActor
+    public func loadData() async {
+        let result = await api.getMeals(by: MealCategory.dessert.rawValue)
+        switch result {
+        case .failure(_):
+            break
+        case .success(let meals):
+            self.meals = meals
+            self.reloadData?()
         }
     }
     

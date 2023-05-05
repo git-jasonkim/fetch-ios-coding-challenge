@@ -13,9 +13,7 @@ class MainControllerTests: XCTestCase {
     func testMainController() {
         let mainController = MainController()
         
-        let api = MealsAPIService()
-        let thumbnailCache = CacheManager()
-        let vm = MealsViewModel(api: api, thumbnailCache: thumbnailCache)
+        let vm = MealsViewModel()
         let mealsController = MealsController(vm: vm, collectionViewLayout: UICollectionViewFlowLayout())
         mainController.update(mealsController: mealsController)
         

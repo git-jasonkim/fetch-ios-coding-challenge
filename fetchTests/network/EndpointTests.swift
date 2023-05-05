@@ -10,22 +10,15 @@ import XCTest
 
 class EndpointTests: XCTestCase {
     
-    func testHostAndVersion() {
-        XCTAssertEqual(API.Host.dev, "https://themealdb.com/")
-        XCTAssertEqual(API.Host.prod, "https://themealdb.com/")
+    func testGetMealsByCategoryUrl() {
+        let url = Endpoint.getMealsByCategory(name: "1").url?.absoluteString
+        print(url)
+        XCTAssertEqual(url, "https://themealdb.com/api/json/v1/1/filter.php?c=1")
         
-        XCTAssertEqual(API.Version.V1, "api/json/v1/\(Secret.APIKey)/")
-
     }
     
-    func testGetMealsByCategory() {
-        let baseUrl = BuildConfiguration.shared.baseURL
-        XCTAssertEqual(API.Path.getMealsByCategory("Dessert"), baseUrl + "filter.php?c=Dessert")
+    func testGetMealDetailsUrl() {
+        let url = Endpoint.getMealDetails(id: "1").url?.absoluteString
+        XCTAssertEqual(url, "https://themealdb.com/api/json/v1/1/lookup.php?i=1")
     }
-    
-    func testGetMealDetailsById() {
-        let baseUrl = BuildConfiguration.shared.baseURL
-        XCTAssertEqual(API.Path.getMealDetailsById("1"), baseUrl + "lookup.php?i=1")
-    }
-    
 }

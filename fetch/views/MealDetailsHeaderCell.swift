@@ -10,8 +10,11 @@ import UIKit
 class MealDetailsHeaderCell: UICollectionViewCell {
     
     deinit {
-        print("deinit MealDetailsHeaderCell")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
+
     
     public var mealSectionTitle: NSAttributedString? {
         didSet {

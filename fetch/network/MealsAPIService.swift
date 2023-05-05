@@ -5,49 +5,32 @@
 //  Created by Jason Kim on 4/12/23.
 //
 
-import UIKit
+import Foundation
 
-class MealsAPIService: MealsAPIProtocol {
+class MealAPIService: MealAPI {
+
+    private let api: NetworkingManagerImpl
     
-    private let api: APIService
-    
-    init(api: APIService = APIService()) {
+    init(api: NetworkingManagerImpl = NetworkingManager.shared) {
         self.api = api
     }
     
-    public func getMeals(category: MealCategory) async -> [Meal]? {
-        guard let url = URL(string: API.Path.getMealsByCategory(category.rawValue)) else { return nil}
-        
-        let result: Result<MealResponse, Error> = await api.get(url: url)
-        switch result {
-        case .failure(_):
-            return nil
-        case .success(let response):
-            return response.toMeals()
+    public func getMeals(by category: String) async -> Result<[Meal], NetworkingManager.NetworkingError> {
+        do {
+            let response = try await api.request(.getMealsByCategory(name: category), type: MealResponse.self)
+            return Result.success(response.toMeals())
+        } catch {
+            return Result.failure(error as? NetworkingManager.NetworkingError ?? .custom(error: error))
         }
     }
     
-    public func getMealDetail(id: String) async -> Meal? {
-        guard let url = URL(string: API.Path.getMealDetailsById(id)) else { return nil }
+    public func getMealDetails(by id: String) async -> Result<Meal?, NetworkingManager.NetworkingError> {
+        do {
+            let response = try await api.request(.getMealDetails(id: id), type: MealResponse.self)
+            return Result.success(response.toMeals().first)
+        } catch {
+            return Result.failure(error as? NetworkingManager.NetworkingError ?? .custom(error: error))
+        }
         
-        let result: Result<MealResponse, Error> = await api.get(url: url)
-        switch result {
-        case .failure(_):
-            return nil
-        case .success(let response):
-            return response.toMeals().first
-        }
-    }
-    
-    public func fetchImage(url: String) async -> UIImage? {
-        guard let url = URL(string: url) else { return nil }
-        let result = await api.download(url: url)
-        switch result {
-        case .failure(_):
-            return nil
-        case .success(let data):
-            let image = UIImage(data: data)?.withRenderingMode(.alwaysOriginal)
-            return image
-        }
     }
 }

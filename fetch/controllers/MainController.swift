@@ -10,8 +10,11 @@ import UIKit
 final class MainController: UIViewController {
     
     deinit {
-        print("deinit MainController")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,12 +29,10 @@ final class MainController: UIViewController {
     }
     
     private lazy var mealsController: MealsController = {
-        let api = MealsAPIService()
-        let thumbnailCache = CacheManager()
-        let vm = MealsViewModel(api: api, thumbnailCache: thumbnailCache)
+        let vm = MealsViewModel()
         let cv = MealsController(vm: vm, collectionViewLayout: UICollectionViewFlowLayout())
         cv.selectedMeal = { [weak self] meal in
-            let vm = MealDetailsViewModel(meal: meal, api: api, thumbnailCache: thumbnailCache)
+            let vm = MealDetailsViewModel(meal: meal)
             let mealDetailsController = MealDetailsController(vm: vm, collectionViewLayout: UICollectionViewFlowLayout())
             self?.navigationController?.pushViewController(mealDetailsController, animated: true)
         }
@@ -49,6 +50,8 @@ final class MainController: UIViewController {
     
     private func setupNavigation() {
         self.title = "Fetch Meals"
+        let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = textAttributes
     }
     
 }

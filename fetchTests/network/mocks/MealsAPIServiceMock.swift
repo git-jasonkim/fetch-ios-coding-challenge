@@ -8,15 +8,24 @@
 import XCTest
 @testable import fetch
 
-class MealsAPIServiceMock: MealsAPIProtocol {
-    
+class MealsAPIServiceMock: MealAPI {
     var getMealDetailCounter = 0
     var getMealsCounter = 0
     var fetchImageCount = 0
     
-    func getMealDetail(id: String) async -> fetch.Meal? {
+    func getMeals(by category: String) async -> Result<[fetch.Meal], fetch.NetworkingManager.NetworkingError> {
+        getMealsCounter += 1
+        let meals = [
+            Meal(id: "1", name: "Meal 1", thumbnail: "https://fetch.com/meal1.jpg"),
+            Meal(id: "2", name: "Meal 2", thumbnail: "https://fetch.com/meal2.jpg")
+        ]
+        return Result.success(meals)
+
+    }
+    
+    func getMealDetails(by id: String) async -> Result<fetch.Meal?, fetch.NetworkingManager.NetworkingError> {
         getMealDetailCounter += 1
-        return Meal(
+        let mealWithDetails = Meal(
             id: "1",
             name: "Meal 1",
             thumbnail: "https://fetch.com/meal1.jpg",
@@ -48,20 +57,7 @@ class MealsAPIServiceMock: MealsAPIProtocol {
             creativeCommonsConfirmed: nil,
             dateModified: nil
         )
-    }
-    
-    
-    func getMeals(category: MealCategory) async -> [Meal]? {
-        getMealsCounter += 1
-        return [
-            Meal(id: "1", name: "Meal 1", thumbnail: "https://fetch.com/meal1.jpg"),
-            Meal(id: "2", name: "Meal 2", thumbnail: "https://fetch.com/meal2.jpg")
-        ]
-    }
-    
-    func fetchImage(url: String) async -> UIImage? {
-        fetchImageCount += 1
-        return UIImage(named: "test_img", in: Bundle(for: type(of: self)), compatibleWith: nil)
+        return Result.success(mealWithDetails)
     }
     
 }

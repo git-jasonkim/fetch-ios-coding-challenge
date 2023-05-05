@@ -107,23 +107,28 @@ struct MealResponse: Codable {
             
             let ingredients: [Int: String] = { meal in
                 var dict = [Int: String]()
-                for (index, key) in meal.ingredients.enumerated() {
-                    dict[index] = key
+                for (index, value) in meal.ingredients.enumerated() {
+                    if (value.isEmpty) {
+                        continue
+                    }
+                    dict[index] = value
                 }
                 return dict
             }($0)
             
             let measurements: [Int: String] = { meal in
                 var dict = [Int: String]()
-                for (index, key) in meal.measurements.enumerated() {
-                    dict[index] = key
+                for (index, value) in meal.measurements.enumerated() {
+                    if (value.isEmpty) {
+                        continue
+                    }
+                    dict[index] = value
                 }
                 return dict
             }($0)
 
-            
-            return Meal(id: $0.id, name: $0.name, thumbnail: $0.thumbnail, drinkAlternate: $0.drinkAlternate, category: $0.category, area: $0.area, instructions: instructions, tags: $0.tags, youtube: $0.youtube, ingredients: ingredients, measurements: measurements, source: $0.source, imageSource: $0.imageSource, creativeCommonsConfirmed: $0.creativeCommonsConfirmed, dateModified: $0.dateModified)
-            
+            return Meal(mealResponse: $0, instructions: instructions, ingredients: ingredients, measurements: measurements)
+
         }.sorted { $0.name < $1.name }
     }
 }

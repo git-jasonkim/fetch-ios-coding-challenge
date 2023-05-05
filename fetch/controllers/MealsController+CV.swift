@@ -10,8 +10,11 @@ import UIKit
 final class MealsController: UICollectionViewController {
     
     deinit {
-        print("deinit MealsController")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
+
     
     public var selectedMeal: ((Meal) ->())?
     
@@ -44,8 +47,10 @@ final class MealsController: UICollectionViewController {
         vm.reloadData = { [weak self] in
             self?.collectionView.reloadData()
         }
+        Task {
+            await vm.loadData()
+        }
         
-        vm.loadData()
     }
      
     private func setupCV() {
@@ -74,9 +79,8 @@ final class MealsController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         guard let mealCell = cell as? MealCell else { return }
-        vm.getThumbnail(of: indexPath.item) { image in
-            guard let image = image else { return}
-            mealCell.image = image
+        Task {
+            await mealCell.mealImageView.load(imgUrl: vm.getThumbnailUrl(of: indexPath.item))
         }
     }
     

@@ -26,7 +26,6 @@ class MealResponseTests: XCTestCase {
         
         guard let result = try? JSONDecoder().decode(MealResponse.self, from: jsonData) else {
             fatalError("Unable to decode MealDetailsResponse.json to Data")
-
         }
 
         let expectedMeal = Meal(
@@ -59,7 +58,8 @@ class MealResponseTests: XCTestCase {
                 4: "4 large",
                 5: "140g",
                 6: "50g",
-                7: "200g"            ],
+                7: "200g"
+            ],
             source: "https://www.bbcgoodfood.com/recipes/2121648/bestever-chocolate-raspberry-brownies",
             imageSource: nil,
             creativeCommonsConfirmed: nil,

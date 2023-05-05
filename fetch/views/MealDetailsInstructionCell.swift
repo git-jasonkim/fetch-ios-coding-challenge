@@ -10,8 +10,11 @@ import UIKit
 class MealDetailsInstructionCell: UICollectionViewCell {
     
     deinit {
-        print("deinit MealDetailsInstructionCell")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
+
     
     public var instruction: NSAttributedString? {
         didSet {

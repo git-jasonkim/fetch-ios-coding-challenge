@@ -10,8 +10,11 @@ import UIKit
 class FetchLabel: UILabel {
     
     deinit {
-        print("deinit FetchLabel")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
+
     
     override init(frame: CGRect) {
         super.init(frame: frame)

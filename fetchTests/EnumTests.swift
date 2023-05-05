@@ -23,16 +23,12 @@ class EnumTests: XCTestCase {
         XCTAssertEqual(MealCategory.init(rawValue: "Dessert"), MealCategory.dessert)
     }
     
-    func testSecret() {
-        XCTAssertEqual(Secret.APIKey, "1")
-    }
-    
     func testPadding() {
         let leftPadding = ((UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.safeAreaInsets.left ?? .zero)
         let rightPadding = ((UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.safeAreaInsets.right ?? .zero)
         
-        XCTAssertEqual(Padding.leftSafeArea, leftPadding)
-        XCTAssertEqual(Padding.rightSafeArea, rightPadding)
+        XCTAssertEqual(Constants.Padding.leftSafeArea, leftPadding)
+        XCTAssertEqual(Constants.Padding.rightSafeArea, rightPadding)
     }
     
     func testColor() {

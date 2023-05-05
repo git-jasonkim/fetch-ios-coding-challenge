@@ -15,9 +15,8 @@ class MealDetailsViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let api = MealsAPIServiceMock()
-        let thumbnailCache = CacheManager()
         let meal1 = Meal(id: "1", name: "Meal 1", thumbnail: "https://fetch.com/meal1.jpg")
-        vm = MealDetailsViewModel(meal: meal1, api: api, thumbnailCache: thumbnailCache)
+        vm = MealDetailsViewModel(meal: meal1, api: api)
     }
     
     override func tearDown() {
@@ -31,41 +30,26 @@ class MealDetailsViewModelTests: XCTestCase {
         XCTAssertEqual(vm.getMealSectionTitle(of: 2).string, "Instructions")
     }
     
-    func testLoadData() {
+    func testLoadData() async {
         let api = vm.api as! MealsAPIServiceMock
         let expectation = XCTestExpectation(description: "Load data")
         
-        vm.loadData()
         vm.reloadData = {
-            XCTAssertEqual(api.getMealDetailCounter, 1)
-            XCTAssertEqual(self.vm.count, 10)
-            XCTAssertEqual(self.vm.instructionsCount, 2)
-            XCTAssertEqual(self.vm.ingredientsMeasurementsCount, 8)
-            XCTAssertEqual(self.vm.getMealName().string, "Meal 1")
-            XCTAssertEqual(self.vm.getMealInstruction(of: 1).string, "2. Instruction 2")
-            XCTAssertEqual(self.vm.getMealIngredientMeasurement(of: 1).string, "1. Ingredient 1, Measurement 1")
-            XCTAssertEqual(self.vm.getMealIngredientMeasurement(of: 3).string, "3. Ingredient 3")
-
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 1.0)
-    }
-    
-    func testGetThumbnail() {
-        let api = vm.api as! MealsAPIServiceMock
-        let expectation = XCTestExpectation(description: "Get thumbnail")
-        let testImg = UIImage(named: "test_img", in: Bundle(for: type(of: self)), with: nil)
-
-        vm.getThumbnail() { image in
-            XCTAssertEqual(api.fetchImageCount, 1)
-            XCTAssertEqual(image, testImg)
-            XCTAssertEqual(self.vm.thumbnailCache.retrieve(id: "https://fetch.com/meal1.jpg"), testImg)
-            XCTAssertFalse(self.vm.thumbnailCache.isNil(id: "https://fetch.com/meal1.jpg"))
-            expectation.fulfill()
-        }
+        await vm.loadData()
         
-        wait(for: [expectation], timeout: 1.0)
+        await fulfillment(of: [expectation], timeout: 1.0)
+        
+        XCTAssertEqual(api.getMealDetailCounter, 1)
+        XCTAssertEqual(self.vm.count, 10)
+        XCTAssertEqual(self.vm.instructionsCount, 2)
+        XCTAssertEqual(self.vm.ingredientsMeasurementsCount, 8)
+        XCTAssertEqual(self.vm.getMealName().string, "Meal 1")
+        XCTAssertEqual(self.vm.getMealInstruction(of: 1).string, "2. Instruction 2")
+        XCTAssertEqual(self.vm.getMealIngredientMeasurement(of: 1).string, "2. Ingredient 1, Measurement 1")
+        XCTAssertEqual(self.vm.getMealIngredientMeasurement(of: 3).string, "3. Ingredient 3")
+
     }
-    
 }

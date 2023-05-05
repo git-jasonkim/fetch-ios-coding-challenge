@@ -10,26 +10,23 @@ import UIKit
 class MealDetailsViewModel {
     
     deinit {
-        print("deinit MealDetailsViewModel")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
-    
-    internal let api: MealsAPIProtocol
-    internal let thumbnailCache: CacheManager
 
-    init(meal: Meal, api: MealsAPIProtocol, thumbnailCache: CacheManager) {
-        self._meal = meal
+
+    private(set) var meal: Meal
+    internal let api: MealAPI
+    public var reloadData: (() -> ())?
+    
+    init(meal: Meal, api: MealAPI = MealAPIService()) {
+        self.meal = meal
         self.api = api
-        self.thumbnailCache = thumbnailCache
     }
     
-    private var _meal: Meal
-    
-    public func setMeal(_ meal: Meal) {
-        _meal = meal
-    }
-
     public func getMealName() -> NSAttributedString {
-        let name = _meal.name
+        let name = meal.name
         var attributedText = NSMutableAttributedString()
         
         let paragraphStyle = NSMutableParagraphStyle()
@@ -42,7 +39,9 @@ class MealDetailsViewModel {
         return attributedText
     }
     
-    public var reloadData: (() -> ())?
+    public var thumbnailUrl: String {
+        return meal.thumbnail
+    }
     
     public let headersCount: Int = 3
     private let headers = ["", "Ingredients & Measurements", "Instructions"]
@@ -65,15 +64,15 @@ class MealDetailsViewModel {
     }
     
     public var instructionsCount: Int {
-        return _meal.instructions.count
+        return meal.instructions.count
     }
     
     public var ingredientsMeasurementsCount: Int {
-        return _meal.ingredients.count
+        return meal.ingredients.count
     }
     
     public func getMealInstruction(of index: Int) -> NSAttributedString {
-        let instruction = _meal.instructions[index]
+        let instruction = meal.instructions[index]
         var attributedText = NSMutableAttributedString()
         
         let paragraphStyle = NSMutableParagraphStyle()
@@ -86,8 +85,8 @@ class MealDetailsViewModel {
     }
     
     public func getMealIngredientMeasurement(of key: Int) -> NSAttributedString {
-        let ingredient = _meal.ingredients[key] ?? ""
-        let measurement = _meal.measurements[key] ?? ""
+        let ingredient = meal.ingredients[key] ?? ""
+        let measurement = meal.measurements[key] ?? ""
         var attributedText = NSMutableAttributedString()
         
         let paragraphStyle = NSMutableParagraphStyle()
@@ -102,34 +101,17 @@ class MealDetailsViewModel {
         return attributedText
     }
     
-    public func loadData() {
-        Task {
-            let meal = await api.getMealDetail(id: _meal.id)
-            DispatchQueue.main.async {
-                guard let meal = meal else { return }
-                self.setMeal(meal)
-                self.reloadData?()
-            }
+    @MainActor
+    public func loadData() async {
+        let result = await api.getMealDetails(by: meal.id)
+        switch result {
+        case.failure(_):
+            break
+        case .success(let mealWithDetails):
+            guard let mealWithDetails = mealWithDetails else { return }
+            self.meal = mealWithDetails
+            self.reloadData?()
         }
+
     }
-    
-    public func getThumbnail(completion: @escaping ((UIImage?) -> ())) {
-        let thumbnailUrl = _meal.thumbnail
-        
-        if let image = thumbnailCache.retrieve(id: thumbnailUrl) {
-            completion(image)
-            return
-        }
-        
-        Task {
-            let image = await api.fetchImage(url: thumbnailUrl)
-            DispatchQueue.main.async { [weak self] in
-                if let image = image {
-                    self?.thumbnailCache.set(id: thumbnailUrl, image: image)
-                }
-                completion(image)
-            }
-        }
-    }
-    
 }

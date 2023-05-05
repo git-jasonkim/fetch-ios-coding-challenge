@@ -10,7 +10,9 @@ import UIKit
 final class MealDetailsController: UICollectionViewController {
     
     deinit {
-        print("deinit MealDetailsController")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
     
     internal let vm: MealDetailsViewModel
@@ -47,7 +49,9 @@ final class MealDetailsController: UICollectionViewController {
         vm.reloadData = { [weak self] in
             self?.collectionView.reloadData()
         }
-        vm.loadData()
+        Task {
+            await vm.loadData()
+        }
     }
     
     private func setupCV() {
@@ -100,9 +104,8 @@ final class MealDetailsController: UICollectionViewController {
         case 0:
             let mealDetailsOverviewCell = collectionView.dequeueReusableCell(withReuseIdentifier: ReuseId.cMealDetailsOverviewCell, for: indexPath) as! MealDetailsOverviewCell
             mealDetailsOverviewCell.mealName = vm.getMealName()
-            vm.getThumbnail { image in
-                guard let image = image else { return}
-                mealDetailsOverviewCell.image = image
+            Task {
+                await mealDetailsOverviewCell.mealImageView.load(imgUrl: vm.thumbnailUrl)
             }
             return mealDetailsOverviewCell
         case 1:
@@ -129,11 +132,11 @@ extension MealDetailsController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 0, left: Padding.leftSafeArea, bottom: 24, right: Padding.rightSafeArea)
+        return UIEdgeInsets(top: 0, left: Constants.Padding.leftSafeArea, bottom: 24, right: Constants.Padding.rightSafeArea)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let sidePadding = Padding.leftSafeArea + Padding.rightSafeArea
+        let sidePadding = Constants.Padding.leftSafeArea + Constants.Padding.rightSafeArea
         
         switch indexPath.section {
         case 0:

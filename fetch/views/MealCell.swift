@@ -10,8 +10,11 @@ import UIKit
 class MealCell: UICollectionViewCell {
     
     deinit {
-        print("deinit MealCell")
+        #if DEBUG
+        print("deinit \(String(describing: self))")
+        #endif
     }
+
     
     public var mealName: NSAttributedString? {
         didSet {
@@ -44,7 +47,7 @@ class MealCell: UICollectionViewCell {
     
     private lazy var mealNameLabel = FetchLabel()
     
-    private lazy var mealImageView: UIImageView = {
+    public lazy var mealImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.layer.cornerRadius = 6
